@@ -17,17 +17,19 @@
     <h1>
         Public Data Cryptography
     </h1>
-    <subtitle>Cryptography that liberates data in the public interest.</subtitle>
+    <subtitle>Cryptography that liberates data.</subtitle>
 </article>
 
 
-<author>
-    <name>
-        <first>Mikeal</first>
-        <last>Rogers</last>
-    </name>
-    <handle>@mikeal</handle>
-</author> 
+<authors>
+    <author>
+        <name>
+            <first>Mikeal</first>
+            <last>Rogers</last>
+        </name>
+        <handle>@mikeal</handle>
+    </author>
+</authors> 
 
 <article>
     <h1>Data in the Public Interest</h1>
@@ -62,10 +64,15 @@
 <article>
     <h1>Proof of Sequential Relativity</h1>
     
-
     <article>
         <h2>Algorithm</h2>
 
+        <p>Proof of Sequential Relativity is a general puprose algorith that arrives
+            at guaranteed to be unique address for data <italic>as it appears that sequence</italic>.
+        </p>
+        <p>The process of generating the address may also produce a useful inclusion proof of
+            every generated as it appeared in dependent relativity.
+        </p>
 
         <script id="psr-script">
 function proofOfSequentialRelativity (arr, onhash, hasher=sha256) {
@@ -76,11 +83,7 @@ function proofOfSequentialRelativity (arr, onhash, hasher=sha256) {
         if (typeof x === 'string') {
             return toBinary(x)
         }
-        if (x.proof) {
-            return x.proof
-        }
-        if (Array.isArray(x)) return x
-
+        if (Array.isArray(x)) return proofOfSequentialRelativity(x, onhash, hasher)
         throw new Error('Unknown type')
     })
     if (!arr.length) throw new Error('Empty array')

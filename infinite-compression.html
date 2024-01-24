@@ -238,10 +238,55 @@ function removeMinDelta(bnChunks, minDelta) {
             The laws of probability dictate that the average delta will be
             in half way point in the middle of this number space.
         </p>
-        <p>
-            Therefor, we should explore means of encoding numbers take
-            advantage of this fact so that we can save space on smaller numbers.
+
+        <h2>Sign Vector</h2>
+        <p>We now have numbers that occur within a known fixed space that will average
+           to be in the middle of that space (probable average).
         </p>
+        <p>
+           We can calculate the middle point and encode a single bit for each delta
+           that indicates whether the delta is equal-or-above the probable average or below it.
+        </p>
+        <p>The numbers can now be re-written as the distance between that number
+           and the probable average.
+        </p>
+        <p>Note: it is more efficient to skip the removal of the minimum delta
+           and the contraction of the number space and simply skip to making
+           the sign vector using the probable average instead of the middle of
+           the new number space. These result in slightly different results
+           that probabilistically the same efficiency with less work. But,
+           for the sake of this demonstration we will continue with the more laborious
+           process as it is easier to understand.
+        </p>
+
+        <h1>Delta Compressed Pair Array</h1>
+        <p>Data on the either of side of the probable average can be split
+            into two arrays, one for above and one for below. The numbers
+            will average near the probable average.
+        </p>
+        <p>
+            Since the number are large and group next to each other, we
+            can convert the array to a pair array identical to what we did
+            in the first step when we sorted the original encrypted data.
+        </p>
+        <p>
+            Once it is sorted, we can compress it down to the deltas, and
+            since the numbers group near the beginning of the number range
+            the deltas will be much smaller in the beginning and will
+            tend to get larger over time.
+        </p>
+        <p>
+            Knowing this, we can set break points in the array where
+            were change the number representation. All we would need to
+            record is the number of numbers encoded at each bit length
+            and decide when we must increase the size of the number
+            represenation.
+        </p>
+        <p>
+            Now the number can be encoded sequentially in the smallest
+            possible bit level representation of every number.
+        </p>
+
         <script id="count-bitlengths-script">
 function countBitLengths(bnChunks) {
     const bitLengthCounts = {};
@@ -571,10 +616,6 @@ customElements.define('scatter-plot-button', ScatterPlotButton);
     </article>
     
         <code-highlighter script-id="smallest-representation-script"></code-highlighter>
-        <p>As long as we have knowledge of the smallest delta and the bitLength
-            of the numbers we can re-encode all the deltas inside the smallest
-            number space.
-        </p>
 
     </article>
     <article>
