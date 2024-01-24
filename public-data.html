@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Public Data Cryptography</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module">
+        import * as components from './scripts/components.js';
+        window.BN = components.BN;
+    </script>
+    <script src="scripts/sha256.min.js"></script>
+</head>
+
+<body>
+    
+<article>
+    <h1>
+        Public Data Cryptography
+    </h1>
+    <subtitle>Cryptography that liberates data in the public interest.</subtitle>
+</article>
+
+
+<author>
+    <name>
+        <first>Mikeal</first>
+        <last>Rogers</last>
+    </name>
+    <handle>@mikeal</handle>
+</author> 
+
+<article>
+    <h1>Data in the Public Interest</h1>
+    <article>
+        Data is said to appear "in public" when it enters our shared awareness 
+        (also called the "public sphere").
+    </article>
+    
+    <article>
+        The public sees data...
+    </article> 
+
+    <article>
+        The public writes data...
+    </article>
+
+    <article>
+        The public moves data...
+    </article>
+    <article>
+        While the public's participation in this data is critical to
+        establishing its value, the public retains little to no rights
+        to most data as it is governed by copyright law.
+
+        Public Data Cryptography seeks to provide the means for the public
+        to gain new power over data without the need to "own" or otherwise
+        encode, store or transport data from where it currently resides.    
+    </article>
+   
+</article>
+
+<article>
+    <h1>Proof of Sequential Relativity</h1>
+    
+
+    <article>
+        <h2>Algorithm</h2>
+
+
+        <script id="psr-script">
+function proofOfSequentialRelativity (arr, onhash, hasher=sha256) {
+    arr = arr.map(x => {
+        if (x instanceof Uint8Array) {
+            return x;
+        }
+        if (typeof x === 'string') {
+            return toBinary(x)
+        }
+        if (x.proof) {
+            return x.proof
+        }
+        if (Array.isArray(x)) return x
+
+        throw new Error('Unknown type')
+    })
+    if (!arr.length) throw new Error('Empty array')
+    let tail = hasher.array(arr[0])
+    if (onhash) onhash(tail)
+    for (let i = 1; i < arr.length; i++) {
+        const value = hasher.array(arr[i])
+        if (onhash) onhash(value)
+        const _hasher = hasher.create()
+        _hasher.update(tail)
+        _hasher.update(value)
+        tail = _hasher.array()
+        if (onhash) onhash(tail)
+    }
+    return tail
+}            
+        </script>
+
+    </article>
+
+    <!-- proof-of-seq accepts seq-part elements -->
+    <proof-demonstration>
+        <proof-of-seq>
+            <seq-part>Hello</seq-part>
+            <seq-part>World!</seq-part>
+        </proof-of-seq>
+    </proof-demonstration>
+    
+    <!-- proof-of-seq and public-key-element are also valid seq-parts -->
+    <proof-demonstration>
+        <proof-of-seq>
+            <public-key-element></public-key-element>
+            <seq-part>claims</seq-part>
+            <proof-of-seq>
+                <seq-part>Hello</seq-part>
+                <seq-part>World!</seq-part>
+            </proof-of-seq>
+            <seq-part>is a good example sequence.</seq-part>
+        </proof-of-seq>
+    </proof-demonstration>
+    
+
+    <p>But what is <public-key-element></public-key-element>?</p>
+
+    <proof-demonstration>
+        <proof-of-seq>
+            <public-key-signer-element>
+                <public-key-element></public-key-element>
+                <seq-part>claims</seq-part>
+                <public-key-element></public-key-element>
+                <seq-part>is an RSA Public Key.</seq-part>
+            </public-key-signer-element>
+            <seq-part>is</seq-part>
+            <proof-of-seq>
+                <public-key-element></public-key-element>
+                <seq-part>claims</seq-part>
+                <public-key-element></public-key-element>
+                <seq-part>is an RSA Public Key.</seq-part>
+            </proof-of-seq>
+            <seq-part>signed as such with SHA-256.</seq-part>
+        </proof-of-seq>
+    </proof-demonstration>
+
+</article>
+
+
+<script>
+    const spec_identity = {
+        private: {
+            base64: 'MIICXgIBAAKBgQCzbjk90Rzy1MJ7pLx1EhpwZrZfXjhO3e5o1wdBi6Es70m1STA9Ub5f8HLk1vvC2bPGPx/Ppx0jjeYkVY6wNWCcHMfn2a5gjErxC83OGL1D3EEiEg3VqsI1czaV9XbkXrwJMgR3mQ4d+Jf6PnODJE6E5gTKH0phbx7dAz/8Xl236wIDAQABAoGBAKoPE82U/hzgrZtGXR+QEuLpVnw47qFBEo7nDgd/cTkHahKZ1VCowwhm+l4Nq/vXHd4NQfcraiCigrd5J422aWKw1Y43AB8ef1phdPWeopQ9CQaslwXT9OItCz+H1ptbhBE8QaaB0pQWO8uP+VkqOi/50j6pfKEymfvJ7/DUCgkRAkEA/KlAvDWig4NrKjzy7V1p3Fw/ZJKuHPECYk3YH2A+s78sKR2xQnMGalz/FCb8EpbwWTcPrHF/B2UiXOdmzMEL1wJBALXNO7dKilLwWs7/ToGA9bBpJwE0nkOpOqQ+yXIxLRcUUdPDl0Pl8CBcdNb50mLrsOwMrWrtvo9YI8OAl5i9Eg0CQQCt9st/y14uNxpeZsDM9nihJVLwqJ4Bh2Ag14BrehUyJfr+BFe8bP6J1aY79eux0QOEKgk8rpjMOrJCTYHWkUTZAkBMGk+HGLLyqR66S/FnEL7ITBxByu79T9f2bToSjTdc0+q1BMlLaPOt+EYIv6csNZFoHp5xhnggtTqzWh8blvn5AkEA9Nzbrxm8Aca9IAa9v+e8cU9I819woGjRkRYsKa6vBr7mqD07HWohboQfz5cO9u3DtPWdneXn5AHlWBderTUoww=='
+        },
+        public: {
+            base64: 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzbjk90Rzy1MJ7pLx1EhpwZrZfXjhO3e5o1wdBi6Es70m1STA9Ub5f8HLk1vvC2bPGPx/Ppx0jjeYkVY6wNWCcHMfn2a5gjErxC83OGL1D3EEiEg3VqsI1czaV9XbkXrwJMgR3mQ4d+Jf6PnODJE6E5gTKH0phbx7dAz/8Xl236wIDAQAB'
+        }
+    }
+    spec_identity.public.binary = Uint8Array.from(atob(spec_identity.public.base64), c => c.charCodeAt(0))  
+    spec_identity.private.binary = Uint8Array.from(atob(spec_identity.private.base64), c => c.charCodeAt(0))
+    
+    function get_proof (arr, onhash, hasher=sha256) {
+        arr = arr.map(x => {
+            if (x instanceof Uint8Array) {
+                return x;
+            }
+            if (typeof x === 'string') {
+                return toBinary(x)
+            }
+            if (x.proof) {
+                return x.proof
+            }
+            if (Array.isArray(x)) return x
+    
+            throw new Error('Unknown type')
+        })
+        if (!arr.length) throw new Error('Empty array')
+        let tail = hasher.array(arr[0])
+        if (onhash) onhash(tail)
+        for (let i = 1; i < arr.length; i++) {
+            const value = hasher.array(arr[i])
+            if (onhash) onhash(value)
+            const _hasher = hasher.create()
+            _hasher.update(tail)
+            _hasher.update(value)
+            tail = _hasher.array()
+            if (onhash) onhash(tail)
+        }
+        return tail
+    }
+    function get_inclusions (arr, hasher=sha256) {
+        const inclusions = []
+        const onhash = (hash) => {
+            inclusions.push(hash)
+        }
+        const proof = get_proof(arr, onhash, hasher)
+        return { proof, inclusions }
+    }
+    
+    
+    const toBinary = (str) => {
+        const arr = []
+        for (let i = 0; i < str.length; i++) {
+            arr.push(str.charCodeAt(i).toString(2))
+        }
+        return arr.join('')
+    }
+    class UsefulElement extends HTMLElement {
+        constructor() {
+            super();
+            this.attachShadow({ mode: 'open' });
+            this.shadowRoot.innerHTML = '<slot></slot>';
+        }
+    
+        connectedCallback() {
+            this.render();
+            // Create an observer instance linked to the callback function
+            const observer = new MutationObserver(() => {
+                this.observed = true
+                this.render()
+            });
+    
+            // Start observing the node for configured mutations
+            observer.observe(this, { childList: true });
+        }
+        render () {}
+    }
+    class ProofOfSeq extends UsefulElement {
+    
+        get isProvable() {
+            return true
+        }
+    
+        get proof () {
+            // Get all child elements
+            const children = Array.from(this.children);
+    
+            // Filter out non-seq-part elements
+            const seqParts = children.filter(child => child.isProvable);
+            
+            const provable = part => {
+                if (part.proof) return part.proof
+                return part.textContent
+            }
+    
+            // Proof Assembly
+            const assembly = seqParts.map(provable)
+            const { proof, inclusions } = get_inclusions(assembly)
+            this.assembly = assembly
+            this.inclusions = inclusions
+            this.proof = proof
+            this.setAttribute('proof', btoa(String.fromCharCode(...new Uint8Array(proof))))
+    
+            this.shadowRoot.innerHTML = '';
+            let proofAddress = document.createElement('proof-address');
+            proofAddress.textContent = this.getAttribute('proof');
+    
+            let proofAssembly = document.createElement('proof-assembly');
+            seqParts.forEach((part) => proofAssembly.appendChild(part));
+    
+            let proofInclusions = document.createElement('proof-inclusions');
+            proofInclusions.inclusions = inclusions
+            proofInclusions.appendChild(proofAssembly)
+    
+            this.shadowRoot.appendChild(proofAddress);
+            this.shadowRoot.appendChild(proofInclusions);
+            return proof
+        }
+    }
+    customElements.define('proof-of-seq', ProofOfSeq);
+    
+    class SeqPart extends ProofOfSeq {
+        render () {
+            this.shadowRoot.innerHTML = '<slot></slot>';
+        }
+        get proof () {
+            return false
+        }
+    }
+    customElements.define('seq-part', SeqPart);
+    class ProofAssembly extends ProofOfSeq {
+    }
+    customElements.define('proof-assembly', ProofAssembly);
+    class ProofInclusions extends ProofOfSeq {
+    }
+    customElements.define('proof-inclusions', ProofInclusions); 
+    class PublicKeyElement extends ProofOfSeq {
+        get proof () {
+            // Public Keys and other cryptographically secure data can be directly
+            // used as proof.
+            let key = this.getAttribute('pubkey')
+            let publicKeyBinary
+            if (!key) {
+                publicKeyBinary = spec_identity.public.binary
+            } else {
+                publicKeyBinary = Uint8Array.from(atob(key), c => c.charCodeAt(0))
+            }
+            return publicKeyBinary
+        }
+    }
+    customElements.define('public-key-element', PublicKeyElement);
+    
+    
+    class DemonstrationElement extends UsefulElement {
+        render () {
+    
+        }
+    }
+    
+    </script>
+
+</body>
+</html>

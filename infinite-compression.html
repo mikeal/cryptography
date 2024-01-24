@@ -1,0 +1,590 @@
+<head>
+    <style>
+        body {
+            background-color: #fafafa;
+        }
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Courier New', Courier, monospace;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333333; /* Dark grey color */
+            text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #333333; /* Dark grey border at the bottom */
+        }
+        p {
+            font-family: Didot, Didot LT STD, Hoefler Text, Garamond, Calisto MT, Times New Roman, serif;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/arta.min.css">
+
+     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js"></script>
+</head>
+<script>hljs.highlightAll();</script>
+
+<script type="module">
+    import * as components from './scripts/components.js';
+    window.BN = components.BN;
+</script>
+
+<body>
+    <article>
+        <h1>Infinite Compression</h1>
+    </article>
+
+    <article>
+        <p>Infinite compression is a recursive compression scheme
+           powered by cryptography.
+        </p>
+        <p>Data is first encrypted using a cypher, this results in a <italic>slightly</italic> larger
+            but securely randomized data set.
+        </p>
+        <p>We treat the encrypted data as a sequence of very large numbers which we then
+            sort along with their original position in the sequence.</p>
+        <p>Since this sequence is entirely ascending we can encode the delta from
+            one entry to the next rather than the entire number.
+        </p>
+        <p>We then have a sequence of two numbers. Since once number is very small and
+            other is much smaller than the original representation this can be encoded
+            in roughly the same space as the original representation but a bit larger
+            in some cases with smaller amounts of data.
+        </p>
+        <p>Since every number in the array is securely random, the more data present
+            the closer to the probable average the deltas will be. This means
+            the actual distance between the largest and smallest delta will shrink
+            the most data being compressed.
+        </p>
+        <p>Since these deltas occupy an ever shrinking number space the number encoding
+            will continue to shrink as well. 
+        </p>
+        <p>
+            By recording the high and low delta we can then encode the delta between
+            the lowest delta and the current delta. Since the highest delta value
+            is known ahead of time the smallest possible number representation can
+            be used to represent the space between the lowest and highest delta.
+        </p>
+        <p>
+            As long as the final encoding is smaller than the original data set
+            the process can be repeated by encrypting again, and this process
+            can be recursively encoded and unpacked by encoding the number of
+            recursions into every final encoding.
+        </p>
+        <p>
+            Thus "infinite" compression. There is also a minimum size from which
+            the compression can be applied and result in a smaller encoding.
+        </p>
+    </article>
+    <article>
+        <h1>Encrypting</h1>
+        <p>Data is first encrypted using a cypher, this results in a <italic>slightly</italic> larger
+            but securely randomized data set.</p>
+        <script id="encrypt-data-script">
+async function encryptData(data) {
+    if (typeof data === 'string') {
+        // Convert text to ArrayBuffer
+        const encoder = new TextEncoder();
+        data = encoder.encode(payload);
+    }
+
+    // Generate a hash of the input data
+    const hash = new Uint8Array(await window.crypto.subtle.digest('SHA-256', data));
+    const key = hash.subarray(0, 32); // Use the first 32 bytes (256 bits) for the key
+
+    // Also use for the initializing vector
+    const iv = hash.subarray(0, 16);
+
+    // Algorithm to use, AES-GCM is a good choice because it doesn't add much to the result
+    const name = 'AES-GCM'
+
+    // Import the encryption key
+    const importedKey = await window.crypto.subtle.importKey(
+        'raw', // format
+        key,
+        { name, length: 256 }, // algorithm
+        false, // extractable
+        ['encrypt'] // usage
+    );
+
+    // Encrypt the data
+    const encryptedData = await window.crypto.subtle.encrypt(
+        { name, iv },
+        importedKey,
+        data
+    );
+
+    return [key, encryptedData];
+}
+        </script>
+        <code-highlighter script-id="encrypt-data-script"></code-highlighter>
+    </article>
+    <article>
+        <h1>Sorting</h1>
+        <p>We treat the encrypted data as a sequence of very large numbers which we then
+            sort along with their original position in the sequence.</p>
+        <script id="sort-data-script">
+function sortData(encryptedData, key) {
+    // Convert ArrayBuffer to Uint8Array
+    const dataArray = new Uint8Array(encryptedData);
+
+    // Split the array into 32-byte chunks (256 bits)
+    const chunks = [];
+    for (let i = 0; i < dataArray.length; i += 32) {
+        chunks.push(dataArray.slice(i, i + 32));
+    }
+
+    // If the last chunk is not 32 bytes in length, fill the rest of the bytes with the key
+    // this ensures a fully randomized distribution. if we left the bytes zero'd it may
+    // result in an entry well outside the standard probability which would greatly
+    // increase the space we need at the end to represent all the deltas.
+    const lastChunk = chunks[chunks.length - 1];
+    if (lastChunk.length < 32) {
+        const remainingBytes = 32 - lastChunk.length;
+        const keyBytes = key.slice(0, remainingBytes);
+        chunks[chunks.length - 1] = new Uint8Array([...lastChunk, ...keyBytes]);
+    }
+
+    // Convert each chunk to a BN object and store the original position
+    const bnChunks = chunks.map((chunk, index) => ({
+        position: index,
+        number: new BN(chunk)
+    }));
+
+    // Sort the BN objects
+    bnChunks.sort((a, b) => a.number.cmp(b.number));
+
+    return bnChunks;
+}
+        </script>
+        <code-highlighter script-id="sort-data-script"></code-highlighter>
+    </article>
+
+    <article>
+        <h1>Deltas</h1>
+        <p>Since this sequence is entirely ascending we can encode the delta from
+            one entry to the next rather than the entire number.
+        </p>
+        
+        <script id="convert-deltas-script">
+function convertToDeltas(bnChunks) {
+    let previousNumber = bnChunks[0].number;
+
+    for (let i = 1; i < bnChunks.length; i++) {
+        // Store the current number before it's overwritten
+        const currentNumber = bnChunks[i].number;
+
+        // Calculate the delta between the current number and the previous number
+        const delta = currentNumber.sub(previousNumber);
+
+        // Check if the delta is negative
+        if (delta.isNeg()) {
+            throw new Error('Delta should not be negative');
+        }
+
+        // Replace the current number with the delta
+        bnChunks[i].number = delta;
+
+        // Update the previous number for the next iteration
+        previousNumber = currentNumber;
+    }
+
+    return bnChunks;
+}
+        </script>
+        <script id="min-max-delta-script">
+/* This is defined earlier than it is displayed because it's used in
+    some early components below */
+function findMinMaxDelta(bnChunks) {
+    let minDelta = bnChunks[1].number;
+    let maxDelta = bnChunks[1].number;
+
+    for (let i = 2; i < bnChunks.length; i++) {
+        if (bnChunks[i].number.lt(minDelta)) {
+            minDelta = bnChunks[i].number;
+        }
+        if (bnChunks[i].number.gt(maxDelta)) {
+            maxDelta = bnChunks[i].number;
+        }
+    }
+
+    return { minDelta, maxDelta };
+}
+        </script>
+    </article>
+    <article>
+        <h1>Encode Smallest Possible Number Representation</h1>
+        <p>
+            By recording the high and low delta we can then encode the delta between
+            the lowest delta and the current delta. All deltas will occur in this space,
+            and if we record this information we can safely remove the minDelta from
+            the encoded representation.
+        </p>
+        <script id="remove-min-delta-script">
+function removeMinDelta(bnChunks, minDelta) {
+    // Subtract minDelta from every number in bnChunks
+    const result = bnChunks.map(chunk => chunk.number.sub(minDelta));
+
+    return result;
+}
+            </script>
+        <code-highlighter script-id="min-max-delta-script"></code-highlighter>
+        <code-highlighter script-id="remove-min-delta-script"></code-highlighter>
+
+        <p>
+            The laws of probability dictate that the average delta will be
+            in half way point in the middle of this number space.
+        </p>
+        <p>
+            Therefor, we should explore means of encoding numbers take
+            advantage of this fact so that we can save space on smaller numbers.
+        </p>
+        <script id="count-bitlengths-script">
+function countBitLengths(bnChunks) {
+    const bitLengthCounts = {};
+
+    for (const chunk of bnChunks) {
+        const bitLength = chunk.number.bitLength();
+
+        if (bitLengthCounts[bitLength]) {
+            bitLengthCounts[bitLength]++;
+        } else {
+            bitLengthCounts[bitLength] = 1;
+        }
+    }
+
+    return bitLengthCounts;
+}
+        </script>
+        <code-highlighter script-id="count-bitlengths-script"></code-highlighter>
+
+        <script id="smallest-representation-script">
+function smallestNumberSize(minDelta, maxDelta) {
+    // Subtract minDelta from maxDelta
+    const difference = maxDelta.sub(minDelta);
+
+    // Return the bit length of the difference
+    return difference.bitLength();
+}
+        </script>
+        <code-highlighter script-id="smallest-representation-script"></code-highlighter>
+
+<script>
+function* readPackedNumbers(uint8Array, bitsPerNumber, numEntries) {
+    let currentNumber = new BN(0);
+    let bitsInCurrentNumber = 0;
+    let entriesYielded = 0;
+
+    for (let i = 0; i < uint8Array.length; i++) {
+        for (let bit = 7; bit >= 0; bit--) {
+            const bitValue = (uint8Array[i] >> bit) & 1;
+            currentNumber = currentNumber.shln(1).or(new BN(bitValue));
+            bitsInCurrentNumber++;
+
+            if (bitsInCurrentNumber === bitsPerNumber) {
+                yield currentNumber;
+                currentNumber = new BN(0);
+                bitsInCurrentNumber = 0;
+                entriesYielded++;
+
+                if (entriesYielded === numEntries) {
+                    return;
+                }
+            }
+        }
+    }
+}
+</script>
+
+
+    </article>
+    <article>
+        <h2>Simulation</h2>
+        <script>
+class FromElement extends HTMLElement {
+    constructor() {
+        super();
+        this.attachShadow({ mode: 'open' });
+    }
+
+    connectedCallback() {
+        const fromId = this.getAttribute('from-id');
+        this.waitForElementAndResult(fromId).then(element => {
+            this.setupUpdate(element);
+        });
+    }
+
+    waitForElementAndResult(fromId) {
+        return new Promise(resolve => {
+            const checkElementAndResult = () => {
+                const element = document.getElementById(fromId);
+                if (element && element.value) {
+                    resolve(element);
+                } else {
+                    requestAnimationFrame(checkElementAndResult);
+                }
+            };
+            checkElementAndResult();
+        });
+    }
+
+    setupUpdate(element) {
+        // Update the component when the result property of the element changes
+        new MutationObserver(() => this.update(element))
+            .observe(element, { attributes: true });
+
+        // Update the component when the value of a text input changes
+        if (element.tagName === 'INPUT' && element.type === 'text') {
+            element.addEventListener('input', () => this.update(element));
+        }
+        // Update the component when the 'resultChanged' event is dispatched
+        element.addEventListener('resultChanged', () => this.update(element));
+
+        // Initial update
+        this.update(element);
+    }
+
+    // Utility function for high precision timers
+    timeFunction(func, ...args) {
+        const startTime = performance.now();
+        const result = func(...args);
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+        return { result, timeTaken };
+    }
+
+    // Utility function for high precision timers for async functions
+    async timeAsyncFunction(asyncFunc, ...args) {
+        const startTime = performance.now();
+        const result = await asyncFunc(...args);
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+        return { result, timeTaken };
+    }
+
+    // To be implemented by subclasses
+    // update(result) {}
+}
+
+class EncryptDataFrom extends FromElement {
+    async update(element) {
+        const sizeInMB = parseInt(element.value)
+        const sizeInBytes = sizeInMB * 1024 * 1024;
+
+        // Create an empty buffer of the specified size
+        const buffer = new ArrayBuffer(sizeInBytes);
+
+        // Encrypt the buffer and measure the time taken
+        const { result: [key, encryptedData], timeTaken } = await this.timeAsyncFunction(encryptData, buffer);
+        this.value = { key, encryptedData }
+
+        // Create elements to display the size of the key and the encrypted data
+        this.shadowRoot.textContent = `encrypts to ${encryptedData.byteLength} bytes of data (or ${Math.ceil(encryptedData.byteLength / 32)} 256b frames) in ${timeTaken}ms`
+        this.dispatchEvent(new CustomEvent('resultChanged'));
+    }
+}
+customElements.define('encrypt-data-from', EncryptDataFrom);
+
+class SortDataFrom extends FromElement {
+    update(element) {
+        const { encryptedData, key } = element.value;
+
+        // Wrap the blocking line in requestAnimationFrame
+        requestAnimationFrame(() => {
+            // Sort the encrypted data and measure the time taken
+            const { result: sortedData, timeTaken } = this.timeFunction(sortData, encryptedData, key);
+
+            this.shadowRoot.textContent = `sorts in ${timeTaken}ms`
+            this.value = sortedData;
+            this.dispatchEvent(new CustomEvent('resultChanged'));
+        });
+    }
+}
+customElements.define('sort-data-from', SortDataFrom);
+class EncDeltasFrom extends FromElement {
+    update(element) {
+        const value = element.value.map(obj => ({ ...obj }))
+
+        // Wrap the blocking line in requestAnimationFrame
+        requestAnimationFrame(async () => {
+            // Convert the sorted data to deltas and measure the time taken
+            const startTime = performance.now();
+
+            const deltas = await convertToDeltas(value);
+            const endTime = performance.now();
+            const timeTaken = endTime - startTime;
+
+            this.shadowRoot.textContent = `converts to deltas in ${timeTaken}ms`
+            this.value = value;
+            this.dispatchEvent(new CustomEvent('resultChanged'));
+        });
+    }
+}
+customElements.define('enc-deltas-from', EncDeltasFrom);
+function createTableFromObject(obj) {
+    // Create a table
+    const table = document.createElement('table');
+
+    // Create the header row
+    const headerRow = document.createElement('tr');
+    Object.keys(obj).forEach(key => {
+        const th = document.createElement('th');
+        th.textContent = key;
+        headerRow.appendChild(th);
+    });
+    table.appendChild(headerRow);
+
+    // Create the values row
+    const valuesRow = document.createElement('tr');
+    Object.values(obj).forEach(value => {
+        const td = document.createElement('td');
+        td.textContent = value;
+        valuesRow.appendChild(td);
+    });
+    table.appendChild(valuesRow);
+
+    return table;
+}
+function roundByte (bits) {
+    return Math.ceil(bits / 8)
+}
+class FrameViewer extends FromElement {
+    update(element) {
+        // Clear the shadow root
+        this.shadowRoot.innerHTML = '';
+
+        const frames = element.value
+        const length = frames.length
+        
+        const offsetSize = roundByte(new BN(length).bitLength());
+        const result = { frames: length, offsetSize }
+        // Check if every entry in the array is greater than the prior entry
+        const isIncreasing = frames.slice(1).every((frame, i) => frame.number.gt(frames[i].number));
+
+        if (!isIncreasing) {
+            const { maxDelta, minDelta } = findMinMaxDelta(frames);
+            result.deltaSize = roundByte(maxDelta.bitLength());
+            result.largestDistanceSize = roundByte(smallestNumberSize(minDelta, maxDelta))
+
+            // Count the bit lengths
+            const bitLengthCounts = countBitLengths(frames);
+
+            // Create a table for the deltas
+            const deltasTable = createTableFromObject(bitLengthCounts);
+            this.shadowRoot.appendChild(deltasTable);
+        }
+        result.firstFrameSize = roundByte(frames[0].number.bitLength())
+
+        const table = createTableFromObject(result);
+
+        // Add the table to the shadow root
+        this.shadowRoot.appendChild(table);
+        // Create the scatter plot button element
+        const scatterPlotButton = document.createElement('scatter-plot-button');
+
+        // Set the from-id attribute
+        scatterPlotButton.setAttribute('from-id', this.id);
+
+        // Append the element to the shadow root
+        this.shadowRoot.appendChild(scatterPlotButton);
+
+        this.frames = frames
+        this.value = result
+        this.dispatchEvent(new CustomEvent('resultChanged'));
+    }
+}
+customElements.define('frame-viewer', FrameViewer);
+class ScatterPlotButton extends FromElement {
+    constructor() {
+        super();
+    }
+
+    update(element) {
+        this.value = element   
+        this.shadowRoot.innerHTML = `
+            <button id="generate">plot deltas</button>
+        `;
+        this.shadowRoot.querySelector('#generate').addEventListener('click', this.generateScatterplot.bind(this));
+
+        // Create and append the script element separately
+        const script = document.createElement('script');
+        script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+        this.shadowRoot.appendChild(script);
+    }
+    generateScatterplot() {
+        const element = this.value
+        const MAX_SAFE_INTEGER = new BN(Number.MAX_SAFE_INTEGER);
+        const { maxDelta } = findMinMaxDelta(element.frames);
+        let LARGE_CONSTANT = maxDelta;
+
+        while (LARGE_CONSTANT.cmp(MAX_SAFE_INTEGER) > 0) {
+            LARGE_CONSTANT = LARGE_CONSTANT.div(new BN(2));
+        }
+
+        this.value = element.frames.slice(1).map(({ number, position }) => {
+            let scaledNumber = number;
+            while (scaledNumber.cmp(LARGE_CONSTANT) >= 0) {
+                scaledNumber = scaledNumber.div(LARGE_CONSTANT);
+            }
+            return { y: scaledNumber.toNumber(), x: position };
+        });
+
+        // Defer the heavy work
+        requestAnimationFrame(() => {
+            this.shadowRoot.removeChild(this.shadowRoot.querySelector('#generate'))
+            const canvas = document.createElement('canvas');
+            canvas.id = 'scatterplot';
+            this.shadowRoot.appendChild(canvas);
+            const ctx = canvas.getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Delta Plot',
+                        data: this.value
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: { type: 'linear', position: 'bottom' }
+                    }
+                }
+            });
+        }, 0);
+    }
+}
+customElements.define('scatter-plot-button', ScatterPlotButton);
+        </script>
+        <form>
+            <p>Data that is <input id="demo1-input" value="1"></input>megabytes,</p>
+            <p>Then <encrypt-data-from id="demo1-enc" from-id="demo1-input"></encrypt-data-from>,</p>
+            <p>Which <sort-data-from id="demo1-sort" from-id="demo1-enc"></sort-data-from>,</p>
+            <frame-viewer id="demo1-first-frames" from-id="demo1-sort"></frame-viewer>
+            <p>Which <enc-deltas-from id="demo1-delta1" from-id="demo1-sort"></enc-deltas-from>,</p>
+            <frame-viewer id="demo1-second-frames" from-id="demo1-delta1"></frame-viewer>
+            <delta-viewer id="demo1-delta-viewer" from-id="demo1-delta1"></delta-viewer>
+            <p>Since </p>
+        </form>
+    </article>
+    
+        <code-highlighter script-id="smallest-representation-script"></code-highlighter>
+        <p>As long as we have knowledge of the smallest delta and the bitLength
+            of the numbers we can re-encode all the deltas inside the smallest
+            number space.
+        </p>
+
+    </article>
+    <article>
+        <h1>Recursive Encoding</h1>
+        <p>
+            As long as the final encoding is smaller than the original data set
+            the process can be repeated by encrypting again, and this process
+            can be recursively encoded and unpacked by encoding the number of
+            recursions into every final encoding.
+        </p>
+    </article>
+
+</body>
