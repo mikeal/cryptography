@@ -39,44 +39,23 @@
 
     <article>
         <p>Infinite compression is a recursive compression scheme
-           powered by cryptography.
-        </p>
-        <p>Data is first encrypted using a cypher, this results in a <italic>slightly</italic> larger
-            but securely randomized data set.
-        </p>
-        <p>We treat the encrypted data as a sequence of very large numbers which we then
-            sort along with their original position in the sequence.</p>
-        <p>Since this sequence is entirely ascending we can encode the delta from
-            one entry to the next rather than the entire number.
-        </p>
-        <p>We then have a sequence of two numbers. Since once number is very small and
-            other is much smaller than the original representation this can be encoded
-            in roughly the same space as the original representation but a bit larger
-            in some cases with smaller amounts of data.
-        </p>
-        <p>Since every number in the array is securely random, the more data present
-            the closer to the probable average the deltas will be. This means
-            the actual distance between the largest and smallest delta will shrink
-            the most data being compressed.
-        </p>
-        <p>Since these deltas occupy an ever shrinking number space the number encoding
-            will continue to shrink as well. 
+           powered by off-the-shelf cryptography.
         </p>
         <p>
-            By recording the high and low delta we can then encode the delta between
-            the lowest delta and the current delta. Since the highest delta value
-            is known ahead of time the smallest possible number representation can
-            be used to represent the space between the lowest and highest delta.
+           While there is a minimum size data can be compressed into (it can't dissapear entirely),
+           this compression can be run in as many recursive cycles as necessary to
+           arrive at the desired size this minimum size.
+        </p>
+        <p>As such, input data can be reduced to any target size above the minimum size
+            no what the input data looks like <strong>or how large it is</strong> given
+            enough cyles, so the <strong>maximium</strong> input size and type of data that can be compressed
+            are both unbounded and able to arrive near the same minimum size no matter how
+            much data is being compressed, it is thus call "infinite compression".
         </p>
         <p>
-            As long as the final encoding is smaller than the original data set
-            the process can be repeated by encrypting again, and this process
-            can be recursively encoded and unpacked by encoding the number of
-            recursions into every final encoding.
-        </p>
-        <p>
-            Thus "infinite" compression. There is also a minimum size from which
-            the compression can be applied and result in a smaller encoding.
+            The effectiveness of the compression algorithm decreases the closer to the
+            minimum size the input data becomes, as the more data there is being compressed 
+            the larger the distance between the frames.
         </p>
     </article>
     <article>
@@ -259,31 +238,36 @@ function removeMinDelta(bnChunks, minDelta) {
            process as it is easier to understand.
         </p>
 
-        <h1>Delta Compressed Pair Array</h1>
+        <h1>Delta Compressed Pair Array Number Encoding</h1>
         <p>Data on the either of side of the probable average can be split
             into two arrays, one for above and one for below. The numbers
             will average near the probable average.
         </p>
         <p>
-            Since the number are large and group next to each other, we
+            Since the numbers are large and group next to each other, we
             can convert the array to a pair array identical to what we did
             in the first step when we sorted the original encrypted data.
+            This trades the cost of an additional small number (array positions
+            increase incrementally from 0) for the ability to compress the new
+            sequence again with a new round of delta compression.
         </p>
         <p>
-            Once it is sorted, we can compress it down to the deltas, and
+            Once sorted, we can compress it down to the deltas as before, and
             since the numbers group near the beginning of the number range
             the deltas will be much smaller in the beginning and will
             tend to get larger over time.
         </p>
         <p>
             Knowing this, we can set break points in the array where
-            were change the number representation. All we would need to
+            we must increase size of the number representation. All we would need to
             record is the number of numbers encoded at each bit length
             and decide when we must increase the size of the number
-            represenation.
+            representation. The cost of each increase is 1 byte for the number of
+            bits in the number representation and another number large enough
+            to represent the amount of numbers encoded at that bit length.
         </p>
         <p>
-            Now the number can be encoded sequentially in the smallest
+            Now the numbers can be encoded sequentially in the smallest
             possible bit level representation of every number.
         </p>
 
