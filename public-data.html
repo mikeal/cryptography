@@ -120,10 +120,11 @@ function psr (arr, inclusions=[], hasher = sha256) {
 
     const hash = hasher.create()
     arr.forEach(x => hash.update(x))
+    // proof of sequence (but not described as a discreet unit)
     const proof = hash.array()
     inclusions.push[[proof, arr]]
 
-    return { proof, inclusions }
+    return { proof: hasher.array(proof), inclusions }
 }   
         </script>
         <code-highlighter script-id="psr-script"></code-highlighter>
