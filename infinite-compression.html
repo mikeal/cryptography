@@ -100,11 +100,34 @@ async function encryptData(data) {
 }
         </script>
         <code-highlighter script-id="encrypt-data-script"></code-highlighter>
+        <p>Now we went from having one thing to having three things.
+        </p>
+        <p>We used to only have "data." Now we have newly encrypted "data,"
+            a key to decrypt that data, and <strong>knowledge</strong>.
+        </p>
+        <p>What knowledge?</p>
+        <p>Knowledge of the nature of the data. For instance, we know this
+            data was encrypted and how to return it to its original form with
+            the key.
+        </p>
+        <p>What is the role of this knowledge in infinite compression?</p>
+        <p>Since this new data is the result of a cryptographic process, we know
+            it is securely randomized.
+        </p>
+        <p>Our encrypted data is encoded as a sequence (of bytes). If we divide
+            this sequence into 32-byte chunks (256 bits) we know that every number
+            in this sequence will be probabilistically distributed evenly across
+            that entire 256b address space.
+        </p>
+        <p>If we were to sort these into an array, each number would then be probabilistically
+           equal in distance from the next.
+        </p>
     </article>
     <article>
         <h1>Sorting</h1>
         <p>We treat the encrypted data as a sequence of very large numbers which we then
-            sort along with their original position in the sequence.</p>
+            sort along with their original position in the sequence so that the sequence
+            can be re-constructed.</p>
         <script id="sort-data-script">
 function sortData(encryptedData, key) {
     // Convert ArrayBuffer to Uint8Array
@@ -140,6 +163,14 @@ function sortData(encryptedData, key) {
 }
         </script>
         <code-highlighter script-id="sort-data-script"></code-highlighter>
+        <p>We have now aquired one new number for every 32 bytes (256b number) but 
+            it's a small number because it starts at 0 and increases incrementally.
+            This is a cost, but one that we can make up for in later compression.
+            However, small payloads eventually hit a point at which we cannot acheive sufficient
+            compression of the deltas to make up for this cost which is how we
+            arrive at the minimum size. It's probabilistic, but not entirely knowable 
+            until we try to compress it.
+        </p>
     </article>
 
     <article>
@@ -193,14 +224,26 @@ function findMinMaxDelta(bnChunks) {
     return { minDelta, maxDelta };
 }
         </script>
+        <p>We started with a sequence of very large numbers and now we have a sequence
+            of smaller numbers that are <strong>not random.</strong>
+        </p>
+        <p>With larger payloads one may already acheive a space reduction that compensates
+            for the additional smaller numbers representing offsets, but since we 
+            now have a sequence of numbers that are <strong>not random</strong> we can compress them
+            further with that knowledge.
+        </p>
     </article>
     <article>
         <h1>Encode Smallest Possible Number Representation</h1>
         <p>
-            By recording the high and low delta we can then encode the delta between
-            the lowest delta and the current delta. All deltas will occur in this space,
-            and if we record this information we can safely remove the minDelta from
-            the encoded representation.
+            By observing the high and low delta we gain knowledge of the number space
+            that the deltas are distributed within. We can use this knowledge to reduce
+            the encoded representation even further.
+        </p>
+        <p>One way to do this would be to simply remove the smallest value from every
+            value since it's already being recorded. We would also be free at this
+            point to reduce the space used by all numbers to the distance between the
+            low and high delta as we know the highest possible value ahead of time.
         </p>
         <script id="remove-min-delta-script">
 function removeMinDelta(bnChunks, minDelta) {
@@ -215,60 +258,68 @@ function removeMinDelta(bnChunks, minDelta) {
 
         <p>
             The laws of probability dictate that the average delta will be
-            in half way point in the middle of this number space.
+            in half way point, or middle of this number space.
         </p>
 
         <h2>Sign Vector</h2>
-        <p>We now have numbers that occur within a known fixed space that will average
-           to be in the middle of that space (probable average).
+        <p>We now have numbers that occur within a known fixed space that will group towards
+           the middle of that space (probable average).
         </p>
         <p>
-           We can calculate the middle point and encode a single bit for each delta
+           We can calculate the middle point from already availabel information, then iterate 
+           over the sequence and encode a single bit for each delta
            that indicates whether the delta is equal-or-above the probable average or below it.
+        </p>
+        <p>This vector will cost 1bit for every number in the sequence. The resultinng "sign vector" is 
+            a new form of knowledge about the sequence that can be used to compress it further.
         </p>
         <p>The numbers can now be re-written as the distance between that number
            and the probable average.
         </p>
         <p>Note: it is more efficient to skip the removal of the minimum delta
-           and the contraction of the number space and simply skip to making
+           and the contraction of the number space and go straight to making
            the sign vector using the probable average instead of the middle of
-           the new number space. These result in slightly different results
-           that probabilistically the same efficiency with less work. But,
+           that new number space. These result in slightly different encodings
+           that are probabilistically the same efficiency with less work. But,
            for the sake of this demonstration we will continue with the more laborious
            process as it is easier to understand.
         </p>
 
         <h1>Delta Compressed Pair Array Number Encoding</h1>
+        <h3>Split</h3>
         <p>Data on the either of side of the probable average can be split
             into two arrays, one for above and one for below. The numbers
-            will average near the probable average.
+            will group near the probable average (which is now zero) resulting
+            in much smaller numbers once again.
         </p>
+        <h3>Sort</h3>
         <p>
             Since the numbers are large and group next to each other, we
-            can convert the array to a pair array identical to what we did
+            can convert each array to a pair array identical to what we did
             in the first step when we sorted the original encrypted data.
             This trades the cost of an additional small number (array positions
             increase incrementally from 0) for the ability to compress the new
             sequence again with a new round of delta compression.
         </p>
+        <h3>Delta Compression</h3>
         <p>
-            Once sorted, we can compress it down to the deltas as before, and
-            since the numbers group near the beginning of the number range
+            Once sorted, we can compress it down to the deltas as before
+            but this time we'll acheive a much greater
+            compression rate than the prior deltas because so many of the numbers will
+            be close to each other.
+        </p>
+        <h3>Bit Level Number Encoding</h3>
+        <p>Since the numbers group near the beginning of the number range
             the deltas will be much smaller in the beginning and will
-            tend to get larger over time.
+            tend to get larger over time.</p>
+        <p>
+            Knowing this, we can record knowledge of the first occurance
+            of each incease in the number size and all numbers from that
+            point on will be encoded at that length. 
         </p>
         <p>
-            Knowing this, we can set break points in the array where
-            we must increase size of the number representation. All we would need to
-            record is the number of numbers encoded at each bit length
-            and decide when we must increase the size of the number
-            representation. The cost of each increase is 1 byte for the number of
-            bits in the number representation and another number large enough
-            to represent the amount of numbers encoded at that bit length.
-        </p>
-        <p>
-            Now the numbers can be encoded sequentially in the smallest
-            possible bit level representation of every number.
+            We can then encode the numbers sequentially using the above defined
+            bit lengths.
         </p>
 
         <script id="count-bitlengths-script">

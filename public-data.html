@@ -62,6 +62,27 @@
 </article>
 
 <article>
+    <p>Public Data Cryptography is an open-ended realm of inter-operable cryptography.</p>
+    <p>The public can define processes for assembly cryptography into a sequential
+        <italic>assembly</italic>. Algorithms can then be defined that arrive at
+        unique cryptographic addresses and proofs for that assembly.
+    </p>
+    <p>Data is never "encoded" into new types or formats, algorithms that form 
+        the assembly instructions for human readable definitions of types and other
+        structures and relationships. Data produced in any format in any type can 
+        then be used as input to these algorithms resulting in proofs that
+        arrive at guaranteed unique addresses for that data <strong>regardless
+        of its type or format a system preferred to encode it</strong>.
+    </p>
+    <p>
+        These "assemblies" can be defined in public and used by anyone without
+        anyone permission or approval structure of any kind. Implementations that
+        arrive at compatible assemblies will arrive at compatible proofs, 
+        so the open "market of ideas" is the only form of consensus.
+    </p>
+</article>
+
+<article>
     <h1>Proof of Sequential Relativity</h1>
     
     <article>
@@ -70,247 +91,78 @@
         <p>Proof of Sequential Relativity is a general puprose algorith that arrives
             at guaranteed to be unique address for data <italic>as it appears that sequence</italic>.
         </p>
-        <p>The process of generating the address may also produce a useful inclusion proof of
-            every generated as it appeared in dependent relativity.
+        <p>The process of generating the address will also include useful inclusion proofs.</p>
+        <p>The algorithm is "flat" in that it only works with a single sequence at a time,
+            but since there is no differentiation between data types or formats, the 
+            hash result can be used as input recursively, so implementations are free to
+            implement the algorithm over assemblies of arbitrary depth.
         </p>
 
         <script id="psr-script">
-function proofOfSequentialRelativity (arr, onhash, hasher=sha256) {
+const toBinary = str => new TextEncoder().encode(str);
+/* psr: proof of sequential relativity */
+function psr (arr, inclusions=[], hasher = sha256) {
     arr = arr.map(x => {
         if (x instanceof Uint8Array) {
-            return x;
+            return hasher.array(x);
         }
         if (typeof x === 'string') {
-            return toBinary(x)
+            return hasher.array(toBinary(x))
         }
-        if (Array.isArray(x)) return proofOfSequentialRelativity(x, onhash, hasher)
+        if (Array.isArray(x)) {
+            const result = proofOfSequentialRelativity(x, inclusions, hasher)
+            inclusions.push([result.proof, result.inclusions])
+            return result.proof
+        }
         throw new Error('Unknown type')
     })
     if (!arr.length) throw new Error('Empty array')
-    let tail = hasher.array(arr[0])
-    if (onhash) onhash(tail)
-    for (let i = 1; i < arr.length; i++) {
-        const value = hasher.array(arr[i])
-        if (onhash) onhash(value)
-        const _hasher = hasher.create()
-        _hasher.update(tail)
-        _hasher.update(value)
-        tail = _hasher.array()
-        if (onhash) onhash(tail)
-    }
-    return tail
-}            
+
+    const hash = hasher.create()
+    arr.forEach(x => hash.update(x))
+    const proof = hash.array()
+    inclusions.push[[proof, arr]]
+
+    return { proof, inclusions }
+}   
         </script>
+        <code-highlighter script-id="psr-script"></code-highlighter>
 
     </article>
 
-    <!-- proof-of-seq accepts seq-part elements -->
-    <proof-demonstration>
-        <proof-of-seq>
-            <seq-part>Hello</seq-part>
-            <seq-part>World!</seq-part>
-        </proof-of-seq>
-    </proof-demonstration>
-    
-    <!-- proof-of-seq and public-key-element are also valid seq-parts -->
-    <proof-demonstration>
-        <proof-of-seq>
-            <public-key-element></public-key-element>
-            <seq-part>claims</seq-part>
-            <proof-of-seq>
-                <seq-part>Hello</seq-part>
-                <seq-part>World!</seq-part>
-            </proof-of-seq>
-            <seq-part>is a good example sequence.</seq-part>
-        </proof-of-seq>
-    </proof-demonstration>
-    
+    <article>
+        <h1>Authoring Public Data Algorithms</h1>
+        <p>Now we can write assemblies that result in cryptographic proofs.</p>
+        <p>Later, we'll see how these proofs and assemblies can be used
+            to gain new power over data without the need to "own" it or
+            ever even encode and store it.
+        </p>
+        <script id="hello-world">
+hw = ['hello', 'world']
+result = psr(hw)
+        </script>
 
-    <p>But what is <public-key-element></public-key-element>?</p>
+        <code-highlighter script-id="hello-world"></code-highlighter>
 
-    <proof-demonstration>
-        <proof-of-seq>
-            <public-key-signer-element>
-                <public-key-element></public-key-element>
-                <seq-part>claims</seq-part>
-                <public-key-element></public-key-element>
-                <seq-part>is an RSA Public Key.</seq-part>
-            </public-key-signer-element>
-            <seq-part>is</seq-part>
-            <proof-of-seq>
-                <public-key-element></public-key-element>
-                <seq-part>claims</seq-part>
-                <public-key-element></public-key-element>
-                <seq-part>is an RSA Public Key.</seq-part>
-            </proof-of-seq>
-            <seq-part>signed as such with SHA-256.</seq-part>
-        </proof-of-seq>
-    </proof-demonstration>
+        <p>As an example, we can examine the cryptography for describing and
+            entity and being typed and as being untyped.
+        </p>
 
-</article>
+        <script id="typing">
+const untyped = psr(new Uint8Array([7]))
+const typed =   psr([ new Uint8Array([7]), 'as a Uint8Array' ])
+        </script>
 
+        <code-highlighter script-id="typing"></code-highlighter>
 
-<script>
-    const spec_identity = {
-        private: {
-            base64: 'MIICXgIBAAKBgQCzbjk90Rzy1MJ7pLx1EhpwZrZfXjhO3e5o1wdBi6Es70m1STA9Ub5f8HLk1vvC2bPGPx/Ppx0jjeYkVY6wNWCcHMfn2a5gjErxC83OGL1D3EEiEg3VqsI1czaV9XbkXrwJMgR3mQ4d+Jf6PnODJE6E5gTKH0phbx7dAz/8Xl236wIDAQABAoGBAKoPE82U/hzgrZtGXR+QEuLpVnw47qFBEo7nDgd/cTkHahKZ1VCowwhm+l4Nq/vXHd4NQfcraiCigrd5J422aWKw1Y43AB8ef1phdPWeopQ9CQaslwXT9OItCz+H1ptbhBE8QaaB0pQWO8uP+VkqOi/50j6pfKEymfvJ7/DUCgkRAkEA/KlAvDWig4NrKjzy7V1p3Fw/ZJKuHPECYk3YH2A+s78sKR2xQnMGalz/FCb8EpbwWTcPrHF/B2UiXOdmzMEL1wJBALXNO7dKilLwWs7/ToGA9bBpJwE0nkOpOqQ+yXIxLRcUUdPDl0Pl8CBcdNb50mLrsOwMrWrtvo9YI8OAl5i9Eg0CQQCt9st/y14uNxpeZsDM9nihJVLwqJ4Bh2Ag14BrehUyJfr+BFe8bP6J1aY79eux0QOEKgk8rpjMOrJCTYHWkUTZAkBMGk+HGLLyqR66S/FnEL7ITBxByu79T9f2bToSjTdc0+q1BMlLaPOt+EYIv6csNZFoHp5xhnggtTqzWh8blvn5AkEA9Nzbrxm8Aca9IAa9v+e8cU9I819woGjRkRYsKa6vBr7mqD07HWohboQfz5cO9u3DtPWdneXn5AHlWBderTUoww=='
-        },
-        public: {
-            base64: 'MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCzbjk90Rzy1MJ7pLx1EhpwZrZfXjhO3e5o1wdBi6Es70m1STA9Ub5f8HLk1vvC2bPGPx/Ppx0jjeYkVY6wNWCcHMfn2a5gjErxC83OGL1D3EEiEg3VqsI1czaV9XbkXrwJMgR3mQ4d+Jf6PnODJE6E5gTKH0phbx7dAz/8Xl236wIDAQAB'
-        }
-    }
-    spec_identity.public.binary = Uint8Array.from(atob(spec_identity.public.base64), c => c.charCodeAt(0))  
-    spec_identity.private.binary = Uint8Array.from(atob(spec_identity.private.base64), c => c.charCodeAt(0))
+        <p>This gives us maximal flexibility and knowledge of what is 
+            being agreed upon. If we wish to produce other agreement,
+            we can do so by producing other assemblies, which means that
+            specifications are irrelevant and only unique assemblies that
+            entirely describe the agreement in question can be produced.
+        </p>
     
-    function get_proof (arr, onhash, hasher=sha256) {
-        arr = arr.map(x => {
-            if (x instanceof Uint8Array) {
-                return x;
-            }
-            if (typeof x === 'string') {
-                return toBinary(x)
-            }
-            if (x.proof) {
-                return x.proof
-            }
-            if (Array.isArray(x)) return x
-    
-            throw new Error('Unknown type')
-        })
-        if (!arr.length) throw new Error('Empty array')
-        let tail = hasher.array(arr[0])
-        if (onhash) onhash(tail)
-        for (let i = 1; i < arr.length; i++) {
-            const value = hasher.array(arr[i])
-            if (onhash) onhash(value)
-            const _hasher = hasher.create()
-            _hasher.update(tail)
-            _hasher.update(value)
-            tail = _hasher.array()
-            if (onhash) onhash(tail)
-        }
-        return tail
-    }
-    function get_inclusions (arr, hasher=sha256) {
-        const inclusions = []
-        const onhash = (hash) => {
-            inclusions.push(hash)
-        }
-        const proof = get_proof(arr, onhash, hasher)
-        return { proof, inclusions }
-    }
-    
-    
-    const toBinary = (str) => {
-        const arr = []
-        for (let i = 0; i < str.length; i++) {
-            arr.push(str.charCodeAt(i).toString(2))
-        }
-        return arr.join('')
-    }
-    class UsefulElement extends HTMLElement {
-        constructor() {
-            super();
-            this.attachShadow({ mode: 'open' });
-            this.shadowRoot.innerHTML = '<slot></slot>';
-        }
-    
-        connectedCallback() {
-            this.render();
-            // Create an observer instance linked to the callback function
-            const observer = new MutationObserver(() => {
-                this.observed = true
-                this.render()
-            });
-    
-            // Start observing the node for configured mutations
-            observer.observe(this, { childList: true });
-        }
-        render () {}
-    }
-    class ProofOfSeq extends UsefulElement {
-    
-        get isProvable() {
-            return true
-        }
-    
-        get proof () {
-            // Get all child elements
-            const children = Array.from(this.children);
-    
-            // Filter out non-seq-part elements
-            const seqParts = children.filter(child => child.isProvable);
-            
-            const provable = part => {
-                if (part.proof) return part.proof
-                return part.textContent
-            }
-    
-            // Proof Assembly
-            const assembly = seqParts.map(provable)
-            const { proof, inclusions } = get_inclusions(assembly)
-            this.assembly = assembly
-            this.inclusions = inclusions
-            this.proof = proof
-            this.setAttribute('proof', btoa(String.fromCharCode(...new Uint8Array(proof))))
-    
-            this.shadowRoot.innerHTML = '';
-            let proofAddress = document.createElement('proof-address');
-            proofAddress.textContent = this.getAttribute('proof');
-    
-            let proofAssembly = document.createElement('proof-assembly');
-            seqParts.forEach((part) => proofAssembly.appendChild(part));
-    
-            let proofInclusions = document.createElement('proof-inclusions');
-            proofInclusions.inclusions = inclusions
-            proofInclusions.appendChild(proofAssembly)
-    
-            this.shadowRoot.appendChild(proofAddress);
-            this.shadowRoot.appendChild(proofInclusions);
-            return proof
-        }
-    }
-    customElements.define('proof-of-seq', ProofOfSeq);
-    
-    class SeqPart extends ProofOfSeq {
-        render () {
-            this.shadowRoot.innerHTML = '<slot></slot>';
-        }
-        get proof () {
-            return false
-        }
-    }
-    customElements.define('seq-part', SeqPart);
-    class ProofAssembly extends ProofOfSeq {
-    }
-    customElements.define('proof-assembly', ProofAssembly);
-    class ProofInclusions extends ProofOfSeq {
-    }
-    customElements.define('proof-inclusions', ProofInclusions); 
-    class PublicKeyElement extends ProofOfSeq {
-        get proof () {
-            // Public Keys and other cryptographically secure data can be directly
-            // used as proof.
-            let key = this.getAttribute('pubkey')
-            let publicKeyBinary
-            if (!key) {
-                publicKeyBinary = spec_identity.public.binary
-            } else {
-                publicKeyBinary = Uint8Array.from(atob(key), c => c.charCodeAt(0))
-            }
-            return publicKeyBinary
-        }
-    }
-    customElements.define('public-key-element', PublicKeyElement);
-    
-    
-    class DemonstrationElement extends UsefulElement {
-        render () {
-    
-        }
-    }
-    
-    </script>
+     </article>
 
 </body>
 </html>

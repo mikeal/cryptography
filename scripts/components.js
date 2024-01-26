@@ -2,12 +2,19 @@ import BN from './bn.bundle.js';
 window.BN = BN
 
 async function loadHighlightJs() {
-    const hljs = await import('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js');
-    await import('https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/javascript.min.js');
-    hljs.highlightAll();
+    // Import the Highlight.js library
+    const hljs = await import('https://esm.run/highlight.js');
+
+    // Import the JavaScript language module
+    await import('https://esm.run/highlight.js/lib/languages/javascript.js');
+
+    // Apply highlighting
+    hljs.default.highlightAll();
+
+    return hljs.default;
 }
 
-loadHighlightJs();
+const hljsPromise = loadHighlightJs();
 function loadHighlightJsCss() {
     const link = document.createElement('link');
     link.rel = 'stylesheet';
@@ -23,7 +30,7 @@ class CodeHighlighter extends HTMLElement {
         this.attachShadow({ mode: 'open' });
     }
 
-    connectedCallback() {
+    async connectedCallback() {
         const scriptId = this.getAttribute('script-id');
         const scriptElement = document.getElementById(scriptId);
         const code = scriptElement.textContent.trim();
@@ -41,7 +48,7 @@ class CodeHighlighter extends HTMLElement {
         preElement.appendChild(codeElement);
         this.shadowRoot.appendChild(linkElement);
         this.shadowRoot.appendChild(preElement);
-
+        const hljs = await hljsPromise;
         hljs.highlightElement(codeElement);
     }
 }
