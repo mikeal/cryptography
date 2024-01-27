@@ -83,6 +83,46 @@
 </article>
 
 <article>
+    <h1><code>hash()</code> and <code>seq()</code></h1>
+    <p>Public Data Cryptography avoids jargon and abstractions by describing
+       cryptographic proceses using only two function interfaces.
+    </p>
+    <p>The functions <code>hash()</code> is already considered to be defined
+        by existant public cryptography. It already has a known interface
+        in which a single <code>input</code> returns a verifiable result.
+    </p>
+    <p>Existant common langugae often refers to <code>hash()</code> results 
+        as "hashes" but this can get rather confusing with the term for the 
+        function itself. As such, we rely upon another common term for hash 
+        results which is <code>proof</code>, as in "proof specific bytes in
+        specific order were passed to a hash function".
+     </p>
+     <p>The only new term will introduce is <code>seq()</code> which is
+        identical to <code>hash()</code> except it takes <italic>multiple arguments</italic>
+        and returns a <code>proof</code> that those individuated arguments were
+        passed in that order.
+     </p>
+     <p>A requirement of this function is that <code>seq(one, two)</code> would
+        not return the same proof as <code>seq(one + two)</code> as would be
+        case with <code>hash()</code>.
+    </p>
+    <p>As such, <code>seq()</code> is a <italic>sequential</italic> hash function.</p>
+    <p>Now we, the public, can describe <italic>sequences</italic> that are assembled 
+        into proofs that are guaranteed to be unique.
+    </p>
+    <p>In order to arrive at compatible proofs, actors will need to use identical
+        implementations of <code>seq()</code> and <code>hash()</code> (like sha2-256)
+        but the public is free to define new algorithms and implementations of either
+        interface.
+    </p>
+    <p>Different implementations of <code>seq()</code> may also produce useful
+        "inclusion proofs" depending upon the algorith. Each algorithm's proof 
+        inclusions will offer different powers we can explor later on, but first 
+        we'll need to define a useful implementation of `seq()
+    </p>
+</article>
+
+<article>
     <h1>Proof of Sequential Relativity</h1>
     
     <article>
@@ -101,7 +141,7 @@
         <script id="psr-script">
 const toBinary = str => new TextEncoder().encode(str);
 /* psr: proof of sequential relativity */
-function psr (arr, inclusions=[], hasher = sha256) {
+function psr (arr, inclusions=[], hasher = sha256 /*js hash impl*/) {
     arr = arr.map(x => {
         if (x instanceof Uint8Array) {
             return hasher.array(x);
@@ -110,9 +150,9 @@ function psr (arr, inclusions=[], hasher = sha256) {
             return hasher.array(toBinary(x))
         }
         if (Array.isArray(x)) {
-            const result = proofOfSequentialRelativity(x, inclusions, hasher)
+            const result = psr(x, inclusions, hasher)
             inclusions.push([result.proof, result.inclusions])
-            return result.proof
+            return hasher.array(result.proof)
         }
         throw new Error('Unknown type')
     })
@@ -124,7 +164,7 @@ function psr (arr, inclusions=[], hasher = sha256) {
     const proof = hash.array()
     inclusions.push[[proof, arr]]
 
-    return { proof: hasher.array(proof), inclusions }
+    return { proof, inclusions }
 }   
         </script>
         <code-highlighter script-id="psr-script"></code-highlighter>
