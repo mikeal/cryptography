@@ -13,11 +13,13 @@
 
 <body>
     
+<slideshow-button></slideshow-button>
+
 <article>
     <h1>
-        Public Data Cryptography
+        Public Data Cryptography<br>
+        <subtitle>Cryptography that liberates data.</subtitle>
     </h1>
-    <subtitle>Cryptography that liberates data.</subtitle>
 </article>
 
 
@@ -33,32 +35,103 @@
 
 <article>
     <h1>Data in the Public Interest</h1>
-    <article>
-        Data is said to appear "in public" when it enters our shared awareness 
-        (also called the "public sphere").
-    </article>
+    <card>
+        <p>
+            Data is said to appear "in public" when it enters our shared awareness 
+            (also called the "public sphere").
+        </p>
+        
+    </card>
     
-    <article>
-        The public sees data...
-    </article> 
+    <card>
+        <p>
+            The public sees data...
+        </p>
+    </card> 
 
-    <article>
-        The public writes data...
-    </article>
+    <card>
+        <p>
+            The public writes data...
+        </p>
+    </card>
 
-    <article>
-        The public moves data...
-    </article>
-    <article>
-        While the public's participation in this data is critical to
-        establishing its value, the public retains little to no rights
-        to most data as it is governed by copyright law.
+    <card>
+        <p>The public moves data...</p>
+    </card>
+    <card>
+        <p>The value of this data depends upon the publics participation in it.</p>
+        <p>What we cannot see, we do not find of value.</p>
+        <p>This cryptography seeks to provide the means for us, <strong>the public</strong>,
+        to gain new data freedoms <italic>without the need to <strong>own</strong></italic> or otherwise
+        encode, store or move data from where it currently resides.</p>
+    </card>
+    <card>
+        <p>This cryptography culminates into 
+        something akin to the "freedom to fork" all data visible
+        to human beings.</p>
+        <p>The resulting cryptography isn't "ownable" like a blockchain,
+        isn't "governable" by instutions or individuals, and enforces
+        no consensus between actors other than what results in compatible
+        proofs as defined by those actors that wish to agree.</p>
+    </card>
+</article>
 
-        Public Data Cryptography seeks to provide the means for the public
-        to gain new power over data without the need to "own" or otherwise
-        encode, store or transport data from where it currently resides.    
-    </article>
-   
+<article>
+    <h1><code>hash()</code> and <code>seq()</code></h1>
+    <card>
+        <p>Public Data Cryptography avoids jargon and abstractions by describing
+            cryptographic proceses using <strong><italic>only two function interfaces</italic></italive></strong>.
+         </p>
+        <p>These two functions are <code>hash()</code> and <code>seq()</code>.</p>
+        <p>The rest of what is defined here as "Public Data Cryptography" is nothing
+            but the deterministic result of these two functions applied to
+            a variety of different sequences using different implementations
+            of these two functions.
+        </p>
+    </card>
+    <card>
+        <h2><code>hash(<italic>input</italic>)</code></h2>
+        <p>The function <code>hash()</code> is already considered to be defined
+            by existant public cryptography. It already has a known interface
+            in which a single <code>input</code> returns a verifiable result.
+        </p>
+        <p>Existant common langugae often refers to <code>hash()</code> results 
+            as "hashes" but this can get rather confusing with the term for the 
+            function itself. As such, we rely upon another common term for hash 
+            results which is <code>proof</code>, as in "proof specific bytes in
+            specific order were passed to a hash function".
+         </p>
+    </card>
+    <card>
+        <h2><code>seq(<italic>input1</italic>, <italic>input2</italic>, ...)</code></h2>
+        <p>The only new term we will introduce is <code>seq()</code> which is
+            identical to <code>hash()</code> except it takes <italic>multiple arguments</italic>
+            and returns a unique <code>proof</code> for those individuated arguments were
+            passed in that order.
+         </p>
+         <p>A requirement of this function is that <code>seq(one, two)</code> would
+            not return the same proof as <code>seq(one + two)</code> as would be
+            case with <code>hash()</code>.
+        </p>
+        <p>As such, <code>seq()</code> is a <italic>sequential</italic> hash function.</p>
+    </card>
+     
+    <card>
+        <p>Now we, the public, can describe <italic>sequences</italic> that are assembled 
+            into proofs that are guaranteed to be unique.
+        </p>
+        <p>In order to arrive at compatible proofs, actors will need to use identical
+            implementations of <code>seq()</code> and <code>hash()</code> (like sha2-256)
+            but the public is free to define new algorithms and implementations of either
+            interface.
+        </p>
+        <p>Different implementations of <code>seq()</code> may also produce useful
+            "inclusion proofs" depending upon the algorith. Each algorithm's proof 
+            inclusions will offer different powers we can explor later on, but first 
+            we'll need to define a useful implementation of `seq()
+        </p>
+    </card>
+    
 </article>
 
 <article>
@@ -82,50 +155,11 @@
     </p>
 </article>
 
-<article>
-    <h1><code>hash()</code> and <code>seq()</code></h1>
-    <p>Public Data Cryptography avoids jargon and abstractions by describing
-       cryptographic proceses using only two function interfaces.
-    </p>
-    <p>The functions <code>hash()</code> is already considered to be defined
-        by existant public cryptography. It already has a known interface
-        in which a single <code>input</code> returns a verifiable result.
-    </p>
-    <p>Existant common langugae often refers to <code>hash()</code> results 
-        as "hashes" but this can get rather confusing with the term for the 
-        function itself. As such, we rely upon another common term for hash 
-        results which is <code>proof</code>, as in "proof specific bytes in
-        specific order were passed to a hash function".
-     </p>
-     <p>The only new term will introduce is <code>seq()</code> which is
-        identical to <code>hash()</code> except it takes <italic>multiple arguments</italic>
-        and returns a <code>proof</code> that those individuated arguments were
-        passed in that order.
-     </p>
-     <p>A requirement of this function is that <code>seq(one, two)</code> would
-        not return the same proof as <code>seq(one + two)</code> as would be
-        case with <code>hash()</code>.
-    </p>
-    <p>As such, <code>seq()</code> is a <italic>sequential</italic> hash function.</p>
-    <p>Now we, the public, can describe <italic>sequences</italic> that are assembled 
-        into proofs that are guaranteed to be unique.
-    </p>
-    <p>In order to arrive at compatible proofs, actors will need to use identical
-        implementations of <code>seq()</code> and <code>hash()</code> (like sha2-256)
-        but the public is free to define new algorithms and implementations of either
-        interface.
-    </p>
-    <p>Different implementations of <code>seq()</code> may also produce useful
-        "inclusion proofs" depending upon the algorith. Each algorithm's proof 
-        inclusions will offer different powers we can explor later on, but first 
-        we'll need to define a useful implementation of `seq()
-    </p>
-</article>
 
 <article>
     <h1>Proof of Sequential Relativity</h1>
     
-    <article>
+    <card>
         <h2>Algorithm</h2>
 
         <p>Proof of Sequential Relativity is a general puprose algorith that arrives
@@ -169,9 +203,9 @@ function psr (arr, inclusions=[], hasher = sha256 /*js hash impl*/) {
         </script>
         <code-highlighter script-id="psr-script"></code-highlighter>
 
-    </article>
+    </card>
 
-    <article>
+    <card>
         <h1>Authoring Public Data Algorithms</h1>
         <p>Now we can write assemblies that result in cryptographic proofs.</p>
         <p>Later, we'll see how these proofs and assemblies can be used
@@ -203,7 +237,49 @@ const typed =   psr([ new Uint8Array([7]), 'as a Uint8Array' ])
             entirely describe the agreement in question can be produced.
         </p>
     
-     </article>
+    </card>
+</article>
+<script>
+window.onload = function() {
+    // Select all article elements
+    let articles = document.querySelectorAll('article');
+    const nav = document.createElement('navigation-footer')
+    nav.classList.add('onlylfullscreen');
 
+    // Loop over the article elements
+    articles.forEach(function(article) {
+        // Create an empty card element
+        let titleCard = document.createElement('card');
+
+        // Add the "onlylfullscreen" class to the empty card
+        titleCard.classList.add('onlylfullscreen');
+
+        // Insert the empty card as the first child of the article
+        article.insertBefore(titleCard, article.firstChild);
+
+        // Select the first h1 element within the current article
+        let h1 = article.querySelector('h1');
+
+        // If an h1 element was found, clone it
+        if (h1) {
+            let clonedH1 = h1.cloneNode(true);
+
+            // Select all card elements within the current article
+            let cards = Array.from(article.querySelectorAll('card'));
+
+            // Loop over the card elements
+            cards.forEach(function(card) {
+                // Insert the cloned h1 element into the card
+                if (card.firstChild) {
+                    card.insertBefore(clonedH1.cloneNode(true), card.firstChild);
+                } else {
+                    card.appendChild(clonedH1.cloneNode(true));
+                }
+                card.appendChild(nav.cloneNode(true))
+            });
+        }
+    });
+};
+</script>
 </body>
 </html>

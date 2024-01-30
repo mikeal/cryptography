@@ -1,18 +1,77 @@
 body {
     background-color: #fafafa;
-}
-h1, h2, h3, h4, h5, h6 {
-    font-family: 'Courier New', Courier, monospace;
-}
-h1 {
-    font-size: 24px;
-    font-weight: bold;
-    color: #333333; /* Dark grey color */
-    text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;
-    padding: 10px;
-    margin-bottom: 20px;
-    border-bottom: 2px solid #333333; /* Dark grey border at the bottom */
-}
-p {
     font-family: Didot, Didot LT STD, Hoefler Text, Garamond, Calisto MT, Times New Roman, serif;
 }
+authors {
+    display: none;
+}
+h1 {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 1em 1em 1em .5em;
+}
+subtitle {
+    font-style: italic; /* Add this line */
+    font-weight: normal;
+    margin: 1em 1em 1em 0; /* Top, right, bottom, left */
+    font-size: .5em;
+}
+card {
+    display: block;
+    margin: 1em;
+    padding: 0 1em 0 1em;
+    border: 1px solid white;
+    background-color: white;
+    box-shadow: 20px 20px 20px 20px #fafafa; /* Add this line */
+}
+.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 9999;
+    margin: 0 0 0 0;
+}
+.hidden {
+    display: none;
+}
+/* Hide the h1 by default */
+card h1 {
+    display: none;
+}
+
+/* Only show the h1 when the parent card has the fullscreen class */
+card.fullscreen h1 {
+    display: block;
+}
+
+/* Hide the onlyfullscreen by default */
+card.onlylfullscreen {
+    display: none;
+}
+
+/* Only show the onlyfullscreen when it has the fullscreen class */
+card.onlyfullscreen.fullscreen {
+    display: flex;
+}
+
+/* Style for fullscreen card */
+card.fullscreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+/* Style for h1 in fullscreen card */
+card.fullscreen h1 {
+    align-self: flex-start;
+}
+
+/* Style for other content in fullscreen card */
+card.fullscreen > :not(h1) {
+    align-self: center;
+    justify-content: space-around;
+}
+
