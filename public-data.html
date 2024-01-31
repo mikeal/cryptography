@@ -35,210 +35,216 @@
 
 <article>
     <h1>Data in the Public Interest</h1>
-    <card>
-        <p>
-            Data is said to appear "in public" when it enters our shared awareness 
-            (also called the "public sphere").
-        </p>
-        
-    </card>
-    
-    <card>
-        <p>
-            The public sees data...
-        </p>
-    </card> 
 
     <card>
-        <p>
-            The public writes data...
-        </p>
+        <pre class="verse">
+The public writes data
+In media, applications, commerce, messaging, at work, play and even resting
+On phones, computers, wearables, and servers through
+Services, clouds, online, offline, and in person.</pre>
     </card>
 
     <card>
-        <p>The public moves data...</p>
+        <pre class="verse">
+The public sees data 
+In news, social, government and business media,
+On search engines, advertisements, billboards, online and offline through
+Tablets, phones, computers, wearables, and walking on the street.</pre>
+    </card>
+
+    <card>
+        <pre class="verse">
+<i>Persception</i> depends upon observation.
+What cannot be observed cannot be assigned <strong>value</strong>.
+<i><strong>Persceptions of value</strong></i> thus <u>depend</u> upon value being perceived as such.
+Therefor, we should derive freedoms in dependence upon <u>nothing but observing data</u>.</pre>
     </card>
     <card>
-        <p>The value of this data depends upon the publics participation in it.</p>
-        <p>What we cannot see, we do not find of value.</p>
-        <p>This cryptography seeks to provide the means for us, <strong>the public</strong>,
-        to gain new data freedoms <italic>without the need to <strong>own</strong></italic> or otherwise
-        encode, store or move data from where it currently resides.</p>
-    </card>
-    <card>
-        <p>This cryptography culminates into 
-        something akin to the "freedom to fork" all data visible
-        to human beings.</p>
-        <p>The resulting cryptography isn't "ownable" like a blockchain,
-        isn't "governable" by instutions or individuals, and enforces
-        no consensus between actors other than what results in compatible
-        proofs as defined by those actors that wish to agree.</p>
+        <pre class="verse">
+As such, this cryptography isn't <i>"ownable"</i> like a blockchain,
+Isn't <i>"governable"</i> by instutions or individuals,
+And is enforced by <i>no consensus</i>
+Other than what is observed to arrive at compatible proof.
+        </pre>
     </card>
 </article>
 
 <article>
     <h1><code>hash()</code> and <code>seq()</code></h1>
     <card>
-        <p>Public Data Cryptography avoids jargon and abstractions by describing
-            cryptographic proceses using <strong><italic>only two function interfaces</italic></italive></strong>.
-         </p>
-        <p>These two functions are <code>hash()</code> and <code>seq()</code>.</p>
-        <p>The rest of what is defined here as "Public Data Cryptography" is nothing
-            but the deterministic result of these two functions applied to
-            a variety of different sequences using different implementations
+        <p>Public Data Cryptography avoids jargon, abstractions, design and standards committees by describing
+            easily understandable processes using <strong><i>only two function interfaces</i></strong>.
+            <br>&nbsp<br>
+            These two functions are <code>hash()</code> and <code>seq()</code>.
+        </p>
+        <p>All "Public Data Cryptography" is
+            deterministic process and result of these two functions applied to
+            different sequences using different implementations
             of these two functions.
         </p>
+        <spacer></spacer>
     </card>
     <card>
-        <h2><code>hash(<italic>input</italic>)</code></h2>
+        <h2><code>hash(<i>input</i>)</code></h2>
         <p>The function <code>hash()</code> is already considered to be defined
             by existant public cryptography. It already has a known interface
             in which a single <code>input</code> returns a verifiable result.
         </p>
-        <p>Existant common langugae often refers to <code>hash()</code> results 
-            as "hashes" but this can get rather confusing with the term for the 
+        <p>Existant common language also refers to <code>hash()</code> <i>results</i> 
+            as "hashes" but this gets easily confused with the term for the 
             function itself. As such, we rely upon another common term for hash 
             results which is <code>proof</code>, as in "proof specific bytes in
             specific order were passed to a hash function".
          </p>
+         <spacer></spacer>
     </card>
     <card>
-        <h2><code>seq(<italic>input1</italic>, <italic>input2</italic>, ...)</code></h2>
+        <h2><code>seq(<i>input1</i>, <i>input2</i>, ...)</code></h2>
         <p>The only new term we will introduce is <code>seq()</code> which is
-            identical to <code>hash()</code> except it takes <italic>multiple arguments</italic>
-            and returns a unique <code>proof</code> for those individuated arguments were
-            passed in that order.
+            identical to <code>hash()</code> except it takes <i>multiple arguments</i>
+            and returns a unique <code>proof</code> for those arguments in that order.
          </p>
-         <p>A requirement of this function is that <code>seq(one, two)</code> would
-            not return the same proof as <code>seq(one + two)</code> as would be
-            case with <code>hash()</code>.
+         <p>As such, <code>seq()</code> is a <i>sequential</i> proof function.
         </p>
-        <p>As such, <code>seq()</code> is a <italic>sequential</italic> hash function.</p>
+        <spacer></spacer>
     </card>
-     
-    <card>
-        <p>Now we, the public, can describe <italic>sequences</italic> that are assembled 
-            into proofs that are guaranteed to be unique.
-        </p>
-        <p>In order to arrive at compatible proofs, actors will need to use identical
-            implementations of <code>seq()</code> and <code>hash()</code> (like sha2-256)
-            but the public is free to define new algorithms and implementations of either
-            interface.
-        </p>
-        <p>Different implementations of <code>seq()</code> may also produce useful
-            "inclusion proofs" depending upon the algorith. Each algorithm's proof 
-            inclusions will offer different powers we can explor later on, but first 
-            we'll need to define a useful implementation of `seq()
-        </p>
-    </card>
-    
 </article>
-
-<article>
-    <p>Public Data Cryptography is an open-ended realm of inter-operable cryptography.</p>
-    <p>The public can define processes for assembly cryptography into a sequential
-        <italic>assembly</italic>. Algorithms can then be defined that arrive at
-        unique cryptographic addresses and proofs for that assembly.
-    </p>
-    <p>Data is never "encoded" into new types or formats, algorithms that form 
-        the assembly instructions for human readable definitions of types and other
-        structures and relationships. Data produced in any format in any type can 
-        then be used as input to these algorithms resulting in proofs that
-        arrive at guaranteed unique addresses for that data <strong>regardless
-        of its type or format a system preferred to encode it</strong>.
-    </p>
-    <p>
-        These "assemblies" can be defined in public and used by anyone without
-        anyone permission or approval structure of any kind. Implementations that
-        arrive at compatible assemblies will arrive at compatible proofs, 
-        so the open "market of ideas" is the only form of consensus.
-    </p>
-</article>
-
-
-<article>
-    <h1>Proof of Sequential Relativity</h1>
-    
-    <card>
-        <h2>Algorithm</h2>
-
-        <p>Proof of Sequential Relativity is a general puprose algorith that arrives
-            at guaranteed to be unique address for data <italic>as it appears that sequence</italic>.
-        </p>
-        <p>The process of generating the address will also include useful inclusion proofs.</p>
-        <p>The algorithm is "flat" in that it only works with a single sequence at a time,
-            but since there is no differentiation between data types or formats, the 
-            hash result can be used as input recursively, so implementations are free to
-            implement the algorithm over assemblies of arbitrary depth.
-        </p>
-
-        <script id="psr-script">
-const toBinary = str => new TextEncoder().encode(str);
-/* psr: proof of sequential relativity */
-function psr (arr, inclusions=[], hasher = sha256 /*js hash impl*/) {
-    arr = arr.map(x => {
-        if (x instanceof Uint8Array) {
-            return hasher.array(x);
-        }
-        if (typeof x === 'string') {
-            return hasher.array(toBinary(x))
-        }
-        if (Array.isArray(x)) {
-            const result = psr(x, inclusions, hasher)
-            inclusions.push([result.proof, result.inclusions])
-            return hasher.array(result.proof)
-        }
-        throw new Error('Unknown type')
-    })
-    if (!arr.length) throw new Error('Empty array')
-
-    const hash = hasher.create()
+<script id="simple-proof1">
+function proof_of_sequence (...arr) {
+    arr = arr.map(x => sha256.array(x))
+    const hash = sha256.create()
     arr.forEach(x => hash.update(x))
-    // proof of sequence (but not described as a discreet unit)
-    const proof = hash.array()
-    inclusions.push[[proof, arr]]
+    return hash.array()
+}
+</script>
+<script id="simple-proof1-inc">
+function proof_of_sequence (...arr) {
+    arr = arr.map(x => sha256.array(x))
+    const hash = sha256.create()
+    arr.forEach(x => hash.update(x))
+    return { proof: hash.array(), inclusions: arr }
+}
+</script>
 
-    return { proof, inclusions }
-}   
-        </script>
-        <code-highlighter script-id="psr-script"></code-highlighter>
-
-    </card>
-
+<script id="simple-proof2">
+function proof_of_linear_values (...arr) {
+    let tail
+    const _map = arr.map(x => {
+        const hash = sha256.create()
+        if (tail) hash.update(tail)
+        hash.update(x)
+        tail = hash.array()
+        return tail
+    })
+    const proof = sha256.create()
+    tail = null
+    arr.forEach(x => {    
+        const hash = sha256.create()
+        if (tail) hash.update(tail)
+        hash.update(x)
+        tail = hash.array()
+    })
+    return proof.array()
+}
+</script>
+<article>
+    <h1>Authoring sequential proof functions</h1>
     <card>
-        <h1>Authoring Public Data Algorithms</h1>
-        <p>Now we can write assemblies that result in cryptographic proofs.</p>
-        <p>Later, we'll see how these proofs and assemblies can be used
-            to gain new power over data without the need to "own" it or
-            ever even encode and store it.
+        <p>We will write two rudimentary but illustrative sequence functions.</p>
+        <code-highlighter script-id="simple-proof1"></code-highlighter>
+        <p>The second is similar to the first but proof addresses are formed
+            that are unique to the sequence of inputs thus far, which results
+            in proofs that are good for "namespace" detection without revealing
+            other information.
         </p>
-        <script id="hello-world">
-hw = ['hello', 'world']
-result = psr(hw)
-        </script>
-
-        <code-highlighter script-id="hello-world"></code-highlighter>
-
-        <p>As an example, we can examine the cryptography for describing and
-            entity and being typed and as being untyped.
+        <code-highlighter script-id="simple-proof2"></code-highlighter>
+    </card>
+    <card>
+        <p>Both functions <code>hash()</code> all the inputs but each makes
+        different considerations as to what state it provides to the hash
+        function.</p>
+        <p>Let's modify the first function to return us not only the final
+            proof but also all the inclusions it derived from the assembly.
         </p>
-
-        <script id="typing">
-const untyped = psr(new Uint8Array([7]))
-const typed =   psr([ new Uint8Array([7]), 'as a Uint8Array' ])
-        </script>
-
-        <code-highlighter script-id="typing"></code-highlighter>
-
-        <p>This gives us maximal flexibility and knowledge of what is 
-            being agreed upon. If we wish to produce other agreement,
-            we can do so by producing other assemblies, which means that
-            specifications are irrelevant and only unique assemblies that
-            entirely describe the agreement in question can be produced.
+        <code-highlighter script-id="simple-proof1-inc"></code-highlighter>
+        <p>In traditional data-structures these inclusions would be considered
+            "merkle links." However, in Public Data Cryptography, <strong>we are not encoding
+            data into a structure</strong>. At this layer, we do not have "types" and
+            therefor cannot distinguish "links" from any other input.
         </p>
+        <p>There is an observable point in the impelmentation of these algorithms that
+            data is seen to be "linked" but this is not a property of the data itself.
+            Proof results are only proof of a specific unique assembly, meaning they
+            only prove that certain bytes were passed to a hash function in an algorithm
+            specified order.
+        </p>
+        <p>What makes <i>input</i> a universal many-to-many link reference is the fact
+        that the security of the hash function guarantees there will not be conflicts,
+        so assemblies can be differentiated from references to assemblies with sufficient
+        knowledge of the assembly that arrived at the proof. If one sees a hash they
+        know to be derived from a particular algorithm and assembly they have knowledge
+        of it as a link, but this knowledge is derived from determinism inherent to the 
+        cryptographic process and not from any encoding of the data itself.
+        </p>
+    </card>
+    <card>
+        <p>There is a hazard to this kind of programming when sufficient context is
+            not included in the assembly. For instance, it's common to use a small set of
+            integers as tokens when encoding common type definitions, which would
+            be equivalent to something like <code>seq(3, 'my string')</code>.
+        </p>
+        <p>To Public Data Cryptography this only means a number followed by bytes derived from
+             "my string", it does not carry the semantic meaning of a string.
+        </p>
+        <p>If we return to the second proof function, notice how the second round
+            of hashing is implemented.
+        </p>
+        <code-highlighter script-id="simple-proof2"></code-highlighter>
+        <p>We could arrive at a proof differentiated from the first function by
+           only passing the tail from earlier. Instead, we are going through the 
+           work of maintaining the tail passing in each round to form the same
+           dependent sequence going into the hash function. This differentiates
+           this algorithm from future algorithms because there is no mistaking the
+           nature of algorithm when observing the bytes as passed to the hash function.
+        </p>
+    </card>
     
+</article>
+
+<script id="assembly-proof">
+function proof_of_assembly (...arr) {
+    const inclusions = []
+    arr = arr.map(x => {
+        if (Array.isArray(x)) {
+            const [ proof, incs ] = proof_of_assembly(...x)
+            inclusion.push([ proof, incs ])
+            return proof
+        } else {
+            return sha256.array(x)
+        }
+    })
+    const hash = sha256.create()
+    arr.forEach(x => hash.update(x))
+    return [ hash.array(), inclusions ]
+}
+</script>
+
+<article>
+    <h1>Merkle Tracing</h1>
+    <card>
+        <p>This form of cryptography is dubbed "merkle tracing" as it carries the properties
+            of merklization but is not a data structure, only the cryptographic "trace"
+            of such process as proof and inclusions.
+        </p>
+    </card>
+    <card>
+        <p>To demonstrate how this might be useful we should write a function that
+            works with recusive assemblies and inclusions.
+        </p>
+        <code-highlighter script-id="assembly-proof"></code-highlighter>
     </card>
 </article>
+
 <script>
 window.onload = function() {
     // Select all article elements

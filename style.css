@@ -1,6 +1,9 @@
 body {
     background-color: #fafafa;
-    font-family: Didot, Didot LT STD, Hoefler Text, Garamond, Calisto MT, Times New Roman, serif;
+    font-family: Didot LT STD, Didot, Hoefler Text, Garamond, Calisto MT, Times New Roman, serif;
+}
+pre {
+    font-family: Didot LT STD, Didot, Hoefler Text, Garamond, Calisto MT, Times New Roman, serif;
 }
 authors {
     display: none;
@@ -51,22 +54,29 @@ card.onlylfullscreen {
     display: none;
 }
 
-/* Only show the onlyfullscreen when it has the fullscreen class */
-card.onlyfullscreen.fullscreen {
-    display: flex;
-}
-
 /* Style for fullscreen card */
 card.fullscreen {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     align-items: flex-start;
+    font-size: 1.5em;
+}
+card.fullscreen p {
+    align-self: left;
+    margin-left: 4vw;
+    margin-right: 8vw;
+}
+card.onlyfullscreen h1 {
+    align-self: left;
+    justify-content: space-around;
 }
 
 /* Style for h1 in fullscreen card */
 card.fullscreen h1 {
     align-self: flex-start;
+    margin-bottom: 0;
+    padding-bottom: 0;
 }
 
 /* Style for other content in fullscreen card */
@@ -75,3 +85,11 @@ card.fullscreen > :not(h1) {
     justify-content: space-around;
 }
 
+card p.verse {
+    margin: 0.5em 0; 
+}
+em, i {
+    font-family: 'Hoefler Text', serif; 
+    font-size: 1.05em;
+    letter-spacing: 0.03em; 
+}

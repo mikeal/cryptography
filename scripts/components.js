@@ -58,10 +58,12 @@ class SlideshowButton extends HTMLElement {
     connectedCallback() {
         // Create the button
         const button = document.createElement('button');
-        button.textContent = 'Start Slideshow';
+        button.classList.add('slideshow-button');
+        button.textContent = '📽';
         button.style.position = 'absolute';
         button.style.top = '10px';
         button.style.right = '10px';
+        button.style.padding = '5px 5px 6px 5px'; // Add padding to even out in every direction, with 1 extra pixel on the bottom
 
         // Add the event listener
         button.addEventListener('click', () => {
